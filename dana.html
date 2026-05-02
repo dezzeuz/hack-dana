@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dezzify Terminal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .terminal-container {
+            width: 100%;
+            height: 100%;
+            max-width: 800px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #333;
+            background-color: #0a0a0a;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+        }
+
+        /* Styling buat HP */
+        @media (max-width: 600px) {
+            .terminal-container {
+                border: none;
+                padding: 15px;
+            }
+        }
+
+        .header {
+            border-bottom: 1px dashed #555;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .output {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .line {
+            display: flex;
+        }
+
+        .system-msg {
+            color: #aaa;
+        }
+
+        .success-msg {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .input-line {
+            display: flex;
+            margin-top: 15px;
+            align-items: center;
+            border-top: 1px dashed #555;
+            padding-top: 15px;
+        }
+
+        .prompt {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: #fff;
+            animation: blink 1s step-end infinite;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="terminal-container">
+        <div class="header">
+            SYSTEM: DEZZIFY_OS // v2.0.4
+        </div>
+        <div class="output" id="output">
+            <!-- Teks akan muncul di sini via JavaScript -->
+        </div>
+        <div class="input-line">
+            <span class="prompt">root@dezzify:~#</span>
+            <span class="typing" id="typing-text"></span><span class="cursor"></span>
+        </div>
+    </div>
+
+    <script>
+        const outputDiv = document.getElementById('output');
+        
+        // Skenario teks yang akan diketik otomatis
+        const bootSequence = [
+            { text: "Initializing Dezzify Core...", type: "system", delay: 800 },
+            { text: "Bypassing mainframe security protocols...", type: "system", delay: 1200 },
+            { text: "[OK] Firewall breached successfully.", type: "success", delay: 500 },
+            { text: "Establishing secure connection to remote server...", type: "system", delay: 1500 },
+            { text: "[OK] Connection established. Encrypted channel active.", type: "success", delay: 500 },
+            { text: "Fetching target data matrix...", type: "system", delay: 2000 },
+            { text: "DATA EXTRACTED: 100%.", type: "success", delay: 400 },
+            { text: "Awaiting next command...", type: "system", delay: 1000 }
+        ];
+
+        async function typeLine(textObj) {
+            return new Promise(resolve => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = `line ${textObj.type === 'success' ? 'success-msg' : 'system-msg'}`;
+                outputDiv.appendChild(lineDiv);
+
+                let i = 0;
+                const typingInterval = setInterval(() => {
+                    lineDiv.textContent += textObj.text.charAt(i);
+                    i++;
+                    outputDiv.scrollTop = outputDiv.scrollHeight; // Auto scroll ke bawah
+                    
+                    if (i >= textObj.text.length) {
+                        clearInterval(typingInterval);
+                        setTimeout(resolve, textObj.delay);
+                    }
+                }, 30); // Kecepatan ngetik
+            });
+        }
+
+        async function runBootSequence() {
+            for (let i = 0; i < bootSequence.length; i++) {
+                await typeLine(bootSequence[i]);
+            }
+            
+            // Animasi ngetik di command line bawah setelah boot selesai
+            const finalCommand = "run exploit.sh";
+            const typingSpan = document.getElementById('typing-text');
+            let j = 0;
+            setInterval(() => {
+                if(j < finalCommand.length) {
+                    typingSpan.textContent += finalCommand.charAt(j);
+                    j++;
+                }
+            }, 100);
+        }
+
+        // Jalankan saat web diload
+        window.onload = runBootSequence;
+    </script>
+</body>
+</html>
