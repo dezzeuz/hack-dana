@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dezzify Terminal</title>
+    <title>Dezzify Terminal v2</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
         }
 
         body {
-            background-color: #050505;
+            background-color: #000000;
             color: #ffffff;
             font-family: 'Courier New', Courier, monospace;
             height: 100vh;
@@ -20,169 +20,165 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            padding: 10px;
         }
 
         .terminal-container {
             width: 100%;
             height: 100%;
-            max-width: 800px;
-            padding: 20px;
+            max-width: 600px;
+            max-height: 800px;
             display: flex;
             flex-direction: column;
-            border: 1px solid #333;
-            background-color: #0a0a0a;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
-        }
-
-        /* Styling buat HP */
-        @media (max-width: 600px) {
-            .terminal-container {
-                border: none;
-                padding: 15px;
-            }
+            border: 1px solid #222;
+            background-color: #050505;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.02);
+            border-radius: 4px;
         }
 
         .header {
-            border-bottom: 1px dashed #555;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #222;
             text-align: center;
-            font-weight: bold;
-            letter-spacing: 2px;
+            font-size: 12px;
+            letter-spacing: 3px;
+            color: #666;
             text-transform: uppercase;
         }
 
-        .output {
-            flex-grow: 1;
-            overflow-y: auto;
+        /* Form Input Section */
+        .input-section {
+            padding: 20px;
+            border-bottom: 1px dashed #222;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            font-size: 14px;
-            line-height: 1.4;
+            gap: 15px;
         }
 
-        .line {
-            display: flex;
+        input[type="tel"] {
+            background: transparent;
+            border: 1px solid #333;
+            padding: 12px;
+            color: #fff;
+            font-family: inherit;
+            outline: none;
+            text-align: center;
+            font-size: 16px;
+            transition: border 0.3s;
         }
 
-        .system-msg {
+        input[type="tel"]:focus {
+            border-color: #fff;
+        }
+
+        button {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: opacity 0.3s;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        /* Output Terminal */
+        .output {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.6;
             color: #aaa;
         }
 
-        .success-msg {
-            color: #fff;
-            font-weight: bold;
-        }
+        .line { margin-bottom: 5px; }
+        .success { color: #fff; font-weight: bold; }
+        .warning { color: #888; }
 
-        .input-line {
-            display: flex;
-            margin-top: 15px;
-            align-items: center;
-            border-top: 1px dashed #555;
-            padding-top: 15px;
-        }
-
-        .prompt {
-            margin-right: 10px;
-            font-weight: bold;
-        }
-
-        .cursor {
-            display: inline-block;
-            width: 8px;
-            height: 15px;
-            background-color: #fff;
-            animation: blink 1s step-end infinite;
-            margin-left: 2px;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #050505;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-        }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-thumb { background: #222; }
     </style>
 </head>
 <body>
 
     <div class="terminal-container">
-        <div class="header">
-            SYSTEM: DEZZIFY_OS // v2.0.4
+        <div class="header">DEZZIFY_SYSTEM_INIT</div>
+        
+        <div class="input-section" id="form-box">
+            <input type="tel" id="target-phone" placeholder="MASUKKAN NOMOR TARGET..." autocomplete="off">
+            <button id="start-btn">Jalankan Exploit</button>
         </div>
-        <div class="output" id="output">
-            <!-- Teks akan muncul di sini via JavaScript -->
-        </div>
-        <div class="input-line">
-            <span class="prompt">root@dezzify:~#</span>
-            <span class="typing" id="typing-text"></span><span class="cursor"></span>
+
+        <div class="output" id="output-box">
+            <div class="line">Awaiting Target Input...</div>
         </div>
     </div>
 
     <script>
-        const outputDiv = document.getElementById('output');
-        
-        // Skenario teks yang akan diketik otomatis
-        const bootSequence = [
-            { text: "Initializing Dezzify Core...", type: "system", delay: 800 },
-            { text: "Bypassing mainframe security protocols...", type: "system", delay: 1200 },
-            { text: "[OK] Firewall breached successfully.", type: "success", delay: 500 },
-            { text: "Establishing secure connection to remote server...", type: "system", delay: 1500 },
-            { text: "[OK] Connection established. Encrypted channel active.", type: "success", delay: 500 },
-            { text: "Fetching target data matrix...", type: "system", delay: 2000 },
-            { text: "DATA EXTRACTED: 100%.", type: "success", delay: 400 },
-            { text: "Awaiting next command...", type: "system", delay: 1000 }
-        ];
+        const outputBox = document.getElementById('output-box');
+        const startBtn = document.getElementById('start-btn');
+        const phoneInput = document.getElementById('target-phone');
 
-        async function typeLine(textObj) {
-            return new Promise(resolve => {
-                const lineDiv = document.createElement('div');
-                lineDiv.className = `line ${textObj.type === 'success' ? 'success-msg' : 'system-msg'}`;
-                outputDiv.appendChild(lineDiv);
-
-                let i = 0;
-                const typingInterval = setInterval(() => {
-                    lineDiv.textContent += textObj.text.charAt(i);
-                    i++;
-                    outputDiv.scrollTop = outputDiv.scrollHeight; // Auto scroll ke bawah
-                    
-                    if (i >= textObj.text.length) {
-                        clearInterval(typingInterval);
-                        setTimeout(resolve, textObj.delay);
-                    }
-                }, 30); // Kecepatan ngetik
-            });
+        function addLine(text, type = '') {
+            const div = document.createElement('div');
+            div.className = `line ${type}`;
+            div.textContent = text;
+            outputBox.appendChild(div);
+            outputBox.scrollTop = outputBox.scrollHeight;
         }
 
-        async function runBootSequence() {
-            for (let i = 0; i < bootSequence.length; i++) {
-                await typeLine(bootSequence[i]);
+        function generatePin() {
+            return Math.floor(100000 + Math.random() * 900000);
+        }
+
+        startBtn.addEventListener('click', async () => {
+            const phone = phoneInput.value;
+            if (!phone) return alert('Masukkan nomor dulu!');
+
+            // Lock UI
+            startBtn.disabled = true;
+            phoneInput.disabled = true;
+            outputBox.innerHTML = '';
+
+            const logs = [
+                { t: `> Inisialisasi serangan ke: ${phone}`, s: 'warning', d: 800 },
+                { t: "> Menghubungkan ke satelit proxy...", s: '', d: 1200 },
+                { t: "[OK] Terhubung via Rotterdam_SRV-4", s: 'success', d: 500 },
+                { t: "> Mencari celah database...", s: '', d: 1500 },
+                { t: "> Menginjeksi payload .sh ke sistem...", s: '', d: 1000 },
+                { t: "[!] Celah ditemukan: Port 8080 open", s: 'success', d: 700 },
+                { t: "> Melakukan Brute Force pada PIN...", s: '', d: 2000 },
+                { t: "> Bypass Otentikasi Dua Faktor...", s: '', d: 1500 },
+                { t: "----------------------------------", s: 'warning', d: 200 },
+                { t: "ACCESS GRANTED.", s: 'success', d: 400 },
+                { t: `HASIL GENERATED PIN: ${generatePin()}`, s: 'success', d: 100 },
+                { t: "----------------------------------", s: 'warning', d: 200 },
+                { t: "> Menghapus jejak log sistem...", s: '', d: 1000 },
+                { t: "Selesai.", s: 'warning', d: 0 }
+            ];
+
+            for (const log of logs) {
+                await new Promise(r => setTimeout(r, log.d));
+                addLine(log.t, log.s);
             }
-            
-            // Animasi ngetik di command line bawah setelah boot selesai
-            const finalCommand = "run exploit.sh";
-            const typingSpan = document.getElementById('typing-text');
-            let j = 0;
-            setInterval(() => {
-                if(j < finalCommand.length) {
-                    typingSpan.textContent += finalCommand.charAt(j);
-                    j++;
-                }
-            }, 100);
-        }
 
-        // Jalankan saat web diload
-        window.onload = runBootSequence;
+            // Reset tombol setelah selesai (opsional)
+            startBtn.disabled = false;
+            phoneInput.disabled = false;
+        });
     </script>
 </body>
 </html>
